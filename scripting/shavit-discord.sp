@@ -25,7 +25,6 @@ g_cvBonusEmbedColor,
 g_cvSteamWebAPIKey;
 
 char g_cHostname[128];
-
 bool g_bRIPExt = false;
 
 public Plugin myinfo =
@@ -103,17 +102,19 @@ public Action CommandDiscordTest(int client, int args)
 
 public void Shavit_OnWorldRecord(int client, int style, float time, int jumps, int strafes, float sync, int track, float oldwr, float oldtime, float perfs)
 {
+	int maptier = 0;
 	if( GetConVarInt(g_cvMinimumrecords) > 0 && Shavit_GetRecordAmount( style, track ) < GetConVarInt(g_cvMinimumrecords) ) // dont print if its a new record to avoid spam for new maps
 	return;
 	if(!StrEqual(g_szApiKey, "") && g_bRIPExt)
-	GetProfilePictureURL(client, style, time, jumps, strafes, sync, track, oldwr, oldtime, perfs);
+	GetProfilePictureURL(client, style, time, jumps, strafes, sync, track, oldwr, oldtime, perfs, maptier);
 	else
-	sendDiscordAnnouncement(client, style, time, jumps, strafes, sync, track, oldwr, oldtime, perfs);
+	sendDiscordAnnouncement(client, style, time, jumps, strafes, sync, track, oldwr, oldtime, perfs, maptier);
 }
 
 
-stock void sendDiscordAnnouncement(int client, int style, float time, int jumps, int strafes, float sync, int track, float oldwr, float oldtime, float perfs)
+stock void sendDiscordAnnouncement(int client, int style, float time, int jumps, int strafes, float sync, int track, float oldwr, float oldtime, float perfs, int mapTier)
 {
+	mapTier = Shavit_GetMapTier("");
 	char sWebhook[512],
 	szMainColor[64],
 	szBonusColor[64],
@@ -137,7 +138,7 @@ stock void sendDiscordAnnouncement(int client, int style, float time, int jumps,
 
 	char buffer[512];
 	if(track == Track_Main) {
-		Format( buffer, sizeof( buffer ), "__**New World Record**__ | **%s** - **%s**", g_cCurrentMap, styleName );
+		Format( buffer, sizeof( buffer ), "__**New World Record**__ | **%s** (**Tier %d**) - **%s**", g_cCurrentMap, mapTier, styleName );
 	} else {
 		Format( buffer, sizeof( buffer ), "__**New Bonus #%i World Record**__ | **%s** - **%s**", track, g_cCurrentMap, styleName );
 	}
@@ -194,7 +195,7 @@ stock void sendDiscordAnnouncement(int client, int style, float time, int jumps,
 }
 
 
-stock void GetProfilePictureURL( int client, int style, float time, int jumps, int strafes, float sync, int track, float oldwr, float oldtime, float perfs)
+stock void GetProfilePictureURL( int client, int style, float time, int jumps, int strafes, float sync, int track, float oldwr, float oldtime, float perfs, int mapTier)
 {
 	HTTPRequest httpRequest;
 
@@ -209,6 +210,7 @@ stock void GetProfilePictureURL( int client, int style, float time, int jumps, i
 	pack.WriteCell(oldwr);
 	pack.WriteCell(oldtime);
 	pack.WriteCell(perfs);
+	pack.WriteCell(mapTier);
 	pack.Reset();
 
 	char szRequestBuffer[1024],
@@ -235,6 +237,7 @@ stock void OnResponseReceived(HTTPResponse response, DataPack pack)
 	float oldwr = pack.ReadCell();
 	float oldtime = pack.ReadCell();
 	float perfs = pack.ReadCell();
+	int mapTier = pack.ReadCell();
 
 	if (response.Status != HTTPStatus_OK)
 	return;
@@ -251,7 +254,7 @@ stock void OnResponseReceived(HTTPResponse response, DataPack pack)
 		player.GetString("avatarmedium", g_szPictureURL, sizeof(g_szPictureURL));
 		delete player;
 	}
-	sendDiscordAnnouncement(client, style, time, jumps, strafes, sync, track, oldwr, oldtime, perfs);
+	sendDiscordAnnouncement(client, style, time, jumps, strafes, sync, track, oldwr, oldtime, perfs, mapTier);
 }
 
 
