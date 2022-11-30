@@ -1,5 +1,6 @@
 ﻿# shavit-discord
 
+## This fork adds the map tier to the discord message (must be compiled with SourceMod 1.10) ##
 
 ![Downloads](https://img.shields.io/github/downloads/Sarrus1/shavit-discord/total?style=flat-square) ![Last commit](https://img.shields.io/github/last-commit/Sarrus1/shavit-discord?style=flat-square) ![Open issues](https://img.shields.io/github/issues/Sarrus1/shavit-discord?style=flat-square) ![Closed issues](https://img.shields.io/github/issues-closed/Sarrus1/shavit-discord?style=flat-square) ![Size](https://img.shields.io/github/repo-size/Sarrus1/shavit-discord?style=flat-square) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Sarrus1/shavit-discord/Compile%20with%20SourceMod?style=flat-square)
 
